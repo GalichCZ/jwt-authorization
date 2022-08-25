@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import ApiError from "../exceptions/api-error.js";
 import tokenModel from "../models/token-model.js";
 class TokenService {
   generateToken(payload) {
@@ -9,6 +10,24 @@ class TokenService {
       expiresIn: "30d",
     });
     return { accessToken, refreshToken };
+  }
+
+  validateAccessToken(token) {
+    try {
+      const userData = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+      return userData;
+    } catch (error) {
+      throw null;
+    }
+  }
+
+  validateRefreshToken(token) {
+    try {
+      const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+      return userData;
+    } catch (error) {
+      throw null;
+    }
   }
 
   async saveToken(userId, refreshToken) {
@@ -22,6 +41,17 @@ class TokenService {
       refreshToken,
     });
     return token;
+  }
+
+  async removeToken(refreshtoken) {
+    const tokenData = await tokenModel.deleteOne({ refreshtoken });
+    console.log(tokenData);
+    return tokenData;
+  }
+
+  async findToken(refreshtoken) {
+    const tokenData = await tokenModel.findOne({ refreshtoken });
+    return tokenData;
   }
 }
 
